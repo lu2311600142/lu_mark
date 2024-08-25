@@ -1,0 +1,19 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <direct.h>
+#include <windows.h>
+#include <io.h>
+
+using namespace std;
+
+void displayMenu();
+void listFilesMenu();
+void listAllFiles();
+void listFilesByExtension();
+void listFilesByPattern();
+void createDirectory();
+void changeDirectoryMenu();
+void moveBack();
+void moveToRoot();
+void moveToSpecificDir();
