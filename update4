@@ -1,0 +1,56 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <direct.h>
+#include <windows.h>
+#include <io.h>
+
+using namespace std;
+
+void displayMenu();
+void listFilesMenu();
+void listAllFiles();
+void listFilesByExtension();
+void listFilesByPattern();
+void createDirectory();
+void changeDirectoryMenu();
+void moveBack();
+void moveToRoot();
+void moveToSpecificDir();
+
+bool directoryExists(const string &dirName) {
+    DWORD ftyp = GetFileAttributesA(dirName.c_str());
+    if (ftyp == INVALID_FILE_ATTRIBUTES)
+        return false; 
+    if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+        return true;  
+    return false;   
+}
+
+int main() {
+    int choice;
+    do {
+        displayMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                listFilesMenu();
+                break;
+            case 2:
+                createDirectory();
+                break;
+            case 3:
+                changeDirectoryMenu();
+                break;
+            case 4:
+                cout << "Exiting the program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice, please try again." << endl;
+        }
+    } while (choice != 4);
+
+    return 0;
+}
