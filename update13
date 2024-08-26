@@ -1,0 +1,202 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <direct.h>
+#include <windows.h>
+#include <io.h>
+
+using namespace std;
+
+void displayMenu();
+void listFilesMenu();
+void listAllFiles();
+void listFilesByExtension();
+void listFilesByPattern();
+void createDirectory();
+void changeDirectoryMenu();
+void moveBack();
+void moveToRoot();
+void moveToSpecificDir();
+
+bool directoryExists(const string &dirName) {
+    DWORD ftyp = GetFileAttributesA(dirName.c_str());
+    if (ftyp == INVALID_FILE_ATTRIBUTES)
+        return false; 
+    if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+        return true;  
+    return false;   
+}
+
+int main() {
+    int choice;
+    do {
+        displayMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                listFilesMenu();
+                break;
+            case 2:
+                createDirectory();
+                break;
+            case 3:
+                changeDirectoryMenu();
+                break;
+            case 4:
+                cout << "Exiting the program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice, please try again." << endl;
+        }
+    } while (choice != 4);
+
+    return 0;
+}
+
+void displayMenu() {
+    cout << "\n !Main Menu! \n";
+    cout << "1. To Display List of Files\n";
+    cout << "2. To Create New Directory\n";
+    cout << "3. To Change the Working Directory\n";
+    cout << "4. Exit\n";
+    cout << "\n";
+}
+
+void listFilesMenu() {
+    int choice;
+    cout << "\n`!LIST FILE DETAIL!\n";
+    cout << "1. List All Files\n";
+    cout << "2. List of Extension Files\n";
+    cout << "3. List of Name Wise\n";
+    cout << "-------------------------\n";
+    cout << "Enter the Number: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            listAllFiles();
+            break;
+        case 2:
+            listFilesByExtension();
+            break;
+        case 3:
+            listFilesByPattern();
+            break;
+        default:
+            cout << "Invalid choice, returning to main menu." << endl;
+    }
+}
+
+void listAllFiles() {
+    _finddata_t fileInfo;
+    intptr_t handle;
+    int count = 0;
+
+    if ((handle = _findfirst(".", &fileInfo)) == -1L) {
+        cout << "No files found in the current directory." << endl;
+    } else {
+        do {
+            cout << fileInfo.name << endl;
+            count++;
+        } while (_findnext(handle, &fileInfo) == 0);
+        _findclose(handle);
+        cout << "Total Files: " << count << endl;
+    }
+
+    cout << "Press any key to continue..." << endl;
+    cin.ignore();
+    cin.get();
+}
+
+void listFilesByExtension() {
+    string ext;
+    cout << "Enter the file extension (e.g., .txt): ";
+    cin >> ext;
+
+    _finddata_t fileInfo;
+    intptr_t handle;
+    string searchPattern = "*" + ext;
+    int count = 0;
+
+    if ((handle = _findfirst(searchPattern.c_str(), &fileInfo)) == -1L) {
+        cout << "No files found with the extension " << ext << " in the current directory." << endl;
+    } else {
+        do {
+            cout << fileInfo.name << endl;
+            count++;
+        } while (_findnext(handle, &fileInfo) == 0);
+        _findclose(handle);
+        cout << "Total Files with extension " << ext << ": " << count << endl;
+    }
+
+    cout << "Press any key to continue..." << endl;
+    cin.ignore();
+    cin.get();
+}
+
+void listFilesByPattern() {
+    string pattern;
+    cout << "Enter the file pattern (e.g., moha*.*): ";
+    cin >> pattern;
+
+    _finddata_t fileInfo;
+    intptr_t handle;
+    int count = 0;
+
+    if ((handle = _findfirst(pattern.c_str(), &fileInfo)) == -1L) {
+        cout << "No files found matching the pattern " << pattern << " in the current directory." << endl;
+    } else {
+        do {
+            cout << fileInfo.name << endl;
+            count++;
+        } while (_findnext(handle, &fileInfo) == 0);
+        _findclose(handle);
+        cout << "Total Files matching pattern " << pattern << ": " << count << endl;
+    }
+
+    cout << "Press any key to continue..." << endl;
+    cin.ignore();
+    cin.get();
+}
+
+void createDirectory() {
+    string dirName;
+    cout << "Enter Directory name: ";
+    cin >> dirName;
+
+    if (_mkdir(dirName.c_str()) == 0) {
+        cout << dirName << " Directory Successfully Created" << endl;
+    } else {
+        cout << "Error creating directory: " << dirName << endl;
+    }
+
+    cout << "Press any key to continue..." << endl;
+    cin.ignore();
+    cin.get();
+}
+
+void changeDirectoryMenu() {
+    int choice;
+    cout << "\n--- Change Directory ---\n";
+    cout << "1. Step by Step Backward\n";
+    cout << "2. Goto Root Directory\n";
+    cout << "3. Forward Directory\n";
+    cout << "Enter the Number: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            moveBack();
+            break;
+        case 2:
+            moveToRoot();
+            break;
+        case 3:
+            moveToSpecificDir();
+            break;
+        default:
+            cout << "Invalid choice, returning to main menu." << endl;
+    }
+}
