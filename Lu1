@@ -1,0 +1,230 @@
+#include <iostream>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string>
+
+using namespace std;
+
+void list_files();
+void create_directory();
+void change_directory();
+void display_main_menu();
+void list_files_menu();
+void list_all_files(const char* path);
+void list_files_with_extension(const char* path, const string& extension);
+void list_files_with_pattern(const char* path, const string& pattern);
+
+int main() {
+    while (true) {
+        display_main_menu();
+        int choice;
+        cout << "Enter the Number: ";
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1:
+                list_files();
+                break;
+            case 2:
+                create_directory();
+                break;
+            case 3:
+                change_directory();
+                break;
+            case 4:
+                cout << "Exiting program..." << endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+    }
+    return 0;
+}
+
+void display_main_menu() {
+    cout << "\nMAIN MENU\n";
+    cout << "1. To Display List of Files\n";
+    cout << "2. To Create New Directory\n";
+    cout << "3. To Change the Working Directory\n";
+    cout << "4. Exit\n";
+}
+
+void list_files_menu() {
+    cout << "\nLIST FILE DETAIL\n";
+    cout << "1. List All Files\n";
+    cout << "2. List Files by Extension\n";
+    cout << "3. List Files by Pattern\n";
+}
+
+void list_files() {
+    list_files_menu();
+    int choice;
+    cout << "Enter the Number: ";
+    cin >> choice;
+    cin.ignore();
+
+    char path[1024];
+    getcwd(path, sizeof(path));
+
+    switch (choice) {
+        case 1:
+            list_all_files(path);
+            break;
+        case 2: {
+            string extension;
+            cout << "Enter file extension (e.g., .txt): ";
+            cin >> extension;
+            list_files_with_extension(path, extension);
+            break;
+        }
+        case 3: {
+            string pattern;
+            cout << "Enter file pattern (e.g., moha*.*): ";
+            cin >> pattern;
+            list_files_with_pattern(path, pattern);
+            break;
+        }
+        default:
+            cout << "Invalid choice. Please try again." << endl;
+            break;
+    }
+}
+
+void list_all_files(const char* path) {
+    DIR* dir;
+    struct dirent* entry;
+
+    if ((dir = opendir(path)) != NULL) {
+        cout << "\nList of All Files\n";
+        int file_count = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            if (entry-> d_type == DT_REG) {
+                cout << entry->d_name << endl;
+                file_count++;
+            }
+        }
+        closedir(dir);
+        cout << "\nTotal Files: " << file_count << endl;
+    } else {
+        perror("Could not open directory");
+    }
+    cout << "Press any key to continue..." << endl;
+    cin.get();
+}
+
+
+void list_files_with_extension(const char* path, const string& extension) {
+    DIR* dir;
+    struct dirent* entry;
+
+    if ((dir = opendir(path)) != NULL) {
+        cout << "\nList of Files with Extension " << extension << "\n";
+        int file_count = 0;
+        size_t ext_len = extension.size();
+        while ((entry = readdir(dir)) != NULL) {
+            string filename = entry->d_name;
+            if (entry->d_type == DT_REG && filename.size() >= ext_len &&
+                filename.compare(filename.size() - ext_len, ext_len, extension) == 0) {
+                cout << filename << endl;
+                file_count++;
+            }
+        }
+        closedir(dir);
+        cout << "\nTotal Files: " << file_count << endl;
+    } else {
+        perror("Could not open directory");
+    }
+    cout << "Press any key to continue..." << endl;
+    cin.get();
+}
+
+void list_files_with_pattern(const char* path, const string& pattern) {
+    DIR* dir;
+    struct dirent* entry;
+
+    if ((dir = opendir(path)) != NULL) {
+        cout << "\nList of Files matching pattern " << pattern << "\n";
+        int file_count = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            string filename = entry->d_name;
+            if (entry->d_type == DT_REG && filename.find(pattern) != string::npos) {
+                cout << filename << endl;
+                file_count++;
+            }
+        }
+        closedir(dir);
+        cout << "\nTotal Files: " << file_count << endl;
+    } else {
+        perror("Could not open directory");
+    }
+    cout << "Press any key to continue..." << endl;
+    cin.get();
+}
+
+void create_directory() {
+    string dir_name;
+    cout << "Enter the Directory name: ";
+    getline(cin, dir_name);
+
+    if (mkdir(dir_name.c_str(), 0777) == 0) {
+        cout << "Directory " << dir_name << " successfully created." << endl;
+    } else {
+        perror("Error creating directory");
+    }
+    cout << "Press any key to continue..." << endl;
+    cin.get();
+}
+
+void change_directory() {
+    cout << "\nCHANGE DIRECTORY\n";
+    cout << "1. Move one step back (to the parent directory)\n";
+    cout << "2. Move to the root directory\n";
+    cout << "3. Move to a specific directory provided by the user\n";
+
+    int choice;
+    cout << "Enter the Number: ";
+    cin >> choice;
+    cin.ignore();
+
+    char path[1024];
+    getcwd(path, sizeof(path));
+
+    switch (choice) {
+        case 1:
+            if (chdir("..") == 0) {
+                getcwd(path, sizeof(path));
+                cout << "Current directory: " << path << endl;
+            } else {
+                perror("Error changing directory");
+            }
+            break;
+        case 2:
+            if (chdir("/") == 0) {
+                getcwd(path, sizeof(path));
+                cout << "Current directory: " << path << endl;
+            } else {
+                perror("Error changing directory");
+            }
+            break;
+        case 3: {
+            string dir_name;
+            cout << "Enter the Directory name: ";
+            getline(cin, dir_name);
+            if (chdir(dir_name.c_str()) == 0) {
+                getcwd(path, sizeof(path));
+                cout << "Current directory: " << path << endl;
+            } else {
+                perror("Error changing directory");
+            }
+            break;
+        }
+        default:
+            cout << "Invalid choice. Please try again." << endl;
+            break;
+    }
+    cout << "Press any key to continue..." << endl;
+    cin.get();
+}
