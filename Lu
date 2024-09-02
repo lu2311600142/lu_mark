@@ -1,0 +1,45 @@
+#include <iostream>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+
+using namespace std;
+
+void list_files();
+void create_directory();
+void change_directory();
+void display_main_menu();
+void list_files_menu();
+void list_all_files(const char* path);
+void list_files_with_extension(const char* path, const string& extension);
+void list_files_with_pattern(const char* path, const string& pattern);
+
+int main() {
+    while (true) {
+        display_main_menu();
+        int choice;
+        cout << "Enter the Number: ";
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1:
+                list_files();
+                break;
+            case 2:
+                create_directory();
+                break;
+            case 3:
+                change_directory();
+                break;
+            case 4:
+                cout << "Exiting program..." << endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+    }
+    return 0;
+}
